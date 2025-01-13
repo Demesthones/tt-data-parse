@@ -9,13 +9,7 @@ from alive_progress import alive_bar
 class TTDataDownloader:
     def __init__(self, path):
             self.path = path
-            self.create_save_directory()
-
-    #Create directory to save downloaded videos
-    def create_save_directory(self) -> None:
-            if not os.path.exists(self.path):
-                os.makedirs(self.path)
-
+            
     #Validate that URL is a Tiktok video
     @staticmethod
     def validate_url(url: str) -> bool:
@@ -58,6 +52,8 @@ class TTDataDownloader:
             return None
 
 def main():
+    path = 'TTData'
+    fav_path = 'TTData\downloaded_favorites'
     #Detect if data file exists in the same directory
     if(os.path.exists("user_data_tiktok.json")):
          print("Data file detected...")
@@ -76,11 +72,16 @@ def main():
     follower_list = (data["Activity"]["Follower List"]["FansList"])
     following_list = (data["Activity"]["Following List"]["Following"])
 
+    #Create directories
+    if not os.path.exists(path):
+        os.makedirs(path)
+        os.makedirs(fav_path)
+    
     #Prompt user to save followers/following users
     s = input("Save follower/follwing lists? Y/N: ")
     if(s == "Y" or s == "y"):
-        save_list(follower_list, 'follower_list.csv')
-        save_list(following_list, 'following_list.csv')
+        save_list(follower_list, os.path.join(path, 'follower_list.csv'))
+        save_list(following_list, os.path.join(path, 'following_list.csv'))
 
     #Prompt user to download favorite videos
     s = input("Download Favorites (" + str(len(fav_vids)) + ")? Y/N: ")
@@ -89,7 +90,7 @@ def main():
         #Update progress bar with each video
         title_str = "Downloading Favorites (" + str(len(fav_vids))+ ")..."
         with alive_bar(len(fav_vids), title=title_str, bar='smooth') as bar:
-            for item in save_videos(fav_vids, 'TTData/downloaded_favorites'):
+            for item in save_videos(fav_vids, fav_path):
                 bar()
 
 #Save list of followers/following users
